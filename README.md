@@ -1,6 +1,6 @@
 # pytest-timestamps
 
-A simple plugin to view the timestamps for each test.
+A simple plugin to view the timestamps in-line with each test.
 
 ## Installation
 
@@ -15,7 +15,7 @@ poetry add pytest-timestamps
 
 ## Usage
 
-Test level timestamps will be added to the report when running Pytest with `-v` or `--verbose`
+Test level timestamps get added to the terminal when running Pytest with `-v` or `--verbose`
 ![](https://i.ibb.co/0qLXFjB/Screenshot-from-2022-01-10-22-00-26.png)
 
 Timestamps will also get added to the test report if [pytest-html](https://github.com/pytest-dev/pytest-html) is installed.
