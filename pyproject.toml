@@ -7,7 +7,7 @@ packages = [{ include = "pytest_timestamps" }]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-pytest = "^5.2"
+pytest = ">=5.2"
 
 [tool.poetry.plugins."pytest11"]
 timestamps = "pytest_timestamps.plugin"
