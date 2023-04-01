@@ -76,7 +76,7 @@ def pytest_runtest_makereport(item, call):
     report.timestamps = item._timestamps
 
 
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_header(cells):
     cells.insert(2, html.th("Setup Start"))
     cells.insert(3, html.th("Test Start"))
@@ -84,7 +84,7 @@ def pytest_html_results_table_header(cells):
     cells.insert(5, html.th("Teardown Stop"))
 
 
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_row(report, cells):
     if len(report.timestamps) == 4:
         for idx, ts in enumerate(report.timestamps):
