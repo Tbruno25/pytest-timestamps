@@ -4,34 +4,34 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 
-def format_timestamp(ts):
+def format_timestamp(ts: float) -> str:
     return datetime.fromtimestamp(ts).strftime("%H:%M:%S")
 
 
-class Timestamped(TerminalReporter):
+class Timestamped(TerminalReporter): # type: ignore
     color = "blue"
 
-    def __init__(self, reporter):
+    def __init__(self, reporter: TerminalReporter) -> None:
         TerminalReporter.__init__(self, reporter.config)
-        self._node = None
-        self._fspath = None
-        self._last_fspath = None
+        self._node = [0]
+        self._fspath = [0]
+        self._last_fspath = [0]
 
-    def _get_timestamps(self):
+    def _get_timestamps(self) -> list:
         if self.verbosity > 0:
             times = self._node
         else:
             times = self._fspath
         return [format_timestamp(i) for i in times]
 
-    def _write_ts_to_terminal(self):
+    def _write_ts_to_terminal(self) -> None:
         start, stop = self._get_timestamps()
         ts_line = f"[{start} - {stop}]"
         w = self._width_of_current_line
         fill = self._tw.fullwidth - w - 10
         self.write(ts_line.rjust(fill), **{self.color: True})
 
-    def _write_progress_information_filling_space(self):
+    def _write_progress_information_filling_space(self) -> None:
         self._write_ts_to_terminal()
         super()._write_progress_information_filling_space()
 
@@ -54,7 +54,7 @@ def pytest_configure(config):
         config.pluginmanager.register(Timestamped(reporter), "terminalreporter")
     if config.pluginmanager.has_plugin("html"):
         global html
-        from py.xml import html
+        from py.xml import html # type: ignore
 
 
 @pytest.hookimpl(hookwrapper=True)
