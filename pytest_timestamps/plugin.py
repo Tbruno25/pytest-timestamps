@@ -1,48 +1,62 @@
 from datetime import datetime
 
+from _pytest.config import Config
+
 import pytest
 from _pytest.terminal import TerminalReporter
+from _pytest.reports import TestReport
+
+from typing import Final, Optional
 
 
-def format_timestamp(ts: float) -> str:
-    return datetime.fromtimestamp(ts).strftime("%H:%M:%S")
+def format(timestamp: float) -> str:
+    return datetime.fromtimestamp(timestamp).strftime("%H:%M:%S")
 
 
-class Timestamped(TerminalReporter): # type: ignore
-    color = "blue"
+class Timestamp:
+    start: Optional[float] = None
+    stop: Optional[float] = None
 
-    def __init__(self, reporter: TerminalReporter) -> None:
-        TerminalReporter.__init__(self, reporter.config)
-        self._node = [0]
-        self._fspath = [0]
-        self._last_fspath = [0]
+    def clear(self) -> None:
+        self.start = None
+        self.stop = None
 
-    def _get_timestamps(self) -> list:
-        if self.verbosity > 0:
-            times = self._node
-        else:
-            times = self._fspath
-        return [format_timestamp(i) for i in times]
+    def get(self) -> str:
+        return f"[{format(self.start)} - {format(self.stop)}]"  # type: ignore
 
-    def _write_ts_to_terminal(self) -> None:
-        start, stop = self._get_timestamps()
-        ts_line = f"[{start} - {stop}]"
-        w = self._width_of_current_line
-        fill = self._tw.fullwidth - w - 10
-        self.write(ts_line.rjust(fill), **{self.color: True})
+    def is_valid(self) -> bool:
+        return bool(self.start and self.stop)
+
+    def update(self, report: TestReport) -> None:
+        if report.when == "call":
+            if not self.start:
+                self.start = report.start
+            self.stop = report.stop
+
+
+class TimestampReporter(TerminalReporter):  # type: ignore
+    color: str = "blue"
+    dedent: int = 10
+    timestamp: Final = Timestamp()
+
+    def __init__(self, config: Config) -> None:
+        TerminalReporter.__init__(self, config)
+
+    def _write_timestamp(self) -> None:
+        line_width = self._width_of_current_line
+        total_width = self._tw.fullwidth
+        fill = total_width - line_width - self.dedent
+        timestamp = self.timestamp.get().rjust(fill)
+        self.write(timestamp, **{self.color: True})
 
     def _write_progress_information_filling_space(self) -> None:
-        self._write_ts_to_terminal()
+        if self.timestamp.is_valid():
+            self._write_timestamp()
         super()._write_progress_information_filling_space()
+        self.timestamp.clear()
 
-    def pytest_runtest_logreport(self, report):
-        if len(report.timestamps) == 3:
-            if report.fspath != self._last_fspath:
-                self._last_fspath = report.fspath
-                self._fspath = report.timestamps[1:3]
-            else:
-                self._fspath[1] = report.timestamps[2]
-        self._node = report.timestamps[1:3]
+    def pytest_runtest_logreport(self, report: TestReport) -> None:
+        self.timestamp.update(report)
         super().pytest_runtest_logreport(report)
 
 
@@ -51,24 +65,4 @@ def pytest_configure(config):
     if config.pluginmanager.has_plugin("terminalreporter"):
         reporter = config.pluginmanager.get_plugin("terminalreporter")
         config.pluginmanager.unregister(reporter, "terminalreporter")
-        config.pluginmanager.register(Timestamped(reporter), "terminalreporter")
-
-
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """Record timestamps to the test report."""
-
-    if call.when == "setup":
-        item._timestamps = [call.start]
-
-    elif call.when == "call":
-        item._timestamps.append(call.start)
-        item._timestamps.append(call.stop)
-
-    else:
-        item._timestamps.append(call.stop)
-
-    output = yield
-    report = output.get_result()
-    report.timestamps = item._timestamps
-
+        config.pluginmanager.register(TimestampReporter(config), "terminalreporter")
