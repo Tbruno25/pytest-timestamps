@@ -52,9 +52,6 @@ def pytest_configure(config):
         reporter = config.pluginmanager.get_plugin("terminalreporter")
         config.pluginmanager.unregister(reporter, "terminalreporter")
         config.pluginmanager.register(Timestamped(reporter), "terminalreporter")
-    if config.pluginmanager.has_plugin("html"):
-        global html
-        from py.xml import html # type: ignore
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -75,17 +72,3 @@ def pytest_runtest_makereport(item, call):
     report = output.get_result()
     report.timestamps = item._timestamps
 
-
-@pytest.hookimpl(optionalhook=True)
-def pytest_html_results_table_header(cells):
-    cells.insert(2, html.th("Setup Start"))
-    cells.insert(3, html.th("Test Start"))
-    cells.insert(4, html.th("Test Stop"))
-    cells.insert(5, html.th("Teardown Stop"))
-
-
-@pytest.hookimpl(optionalhook=True)
-def pytest_html_results_table_row(report, cells):
-    if len(report.timestamps) == 4:
-        for idx, ts in enumerate(report.timestamps):
-            cells.insert(idx + 2, html.td(format_timestamp(ts)))
