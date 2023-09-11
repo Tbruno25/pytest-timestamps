@@ -71,3 +71,26 @@ def test_timestamps_with_skip_decorator(pytester):
     )
     result = pytester.runpytest()
     result.assert_outcomes(skipped=1)
+
+
+def test_timestamp_is_accurate(pytester, timestamp):
+    time_delta = 60
+
+    pytester.makepyfile(
+        f"""
+        from freezegun import freeze_time
+        import pytest
+        
+        @pytest.fixture
+        def time():
+            with freeze_time() as frozen_time:
+                yield frozen_time
+        
+        def test_plugin(time):
+            time.tick({time_delta})
+            assert True
+        """
+    )
+    pytester.runpytest()
+    test_duration = timestamp.stop - timestamp.start
+    assert test_duration - time_delta < 1
