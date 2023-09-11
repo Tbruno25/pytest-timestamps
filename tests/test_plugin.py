@@ -1,14 +1,20 @@
 import pytest
-from freezegun import freeze_time
+from pytest_timestamps.plugin import TimestampReporter
+
+from unittest.mock import patch
 
 pytest_plugins = "pytester"
 
 
 @pytest.fixture
 def timestamp():
-    ts = "01:01:01"
-    with freeze_time(f"2000-01-01 {ts}"):
-        yield f"[{ts} - {ts}]"
+    instance = TimestampReporter.timestamp
+
+    # Prevent times from being cleared once printed to terminal
+    with patch.object(instance, "clear"):
+        yield instance
+
+    instance.clear()
 
 
 def test_timestamps_normal(pytester, timestamp):
@@ -21,8 +27,9 @@ def test_timestamps_normal(pytester, timestamp):
     """
     )
     result = pytester.runpytest()
+    assert timestamp.is_valid()
     result.assert_outcomes(passed=1)
-    assert timestamp in result.stdout.str()
+    assert timestamp.get() in result.stdout.str()
 
 
 def test_timestamps_verbose(pytester, timestamp):
@@ -35,5 +42,33 @@ def test_timestamps_verbose(pytester, timestamp):
     """
     )
     result = pytester.runpytest("-v")
+    assert timestamp.is_valid()
     result.assert_outcomes(passed=1)
-    assert timestamp in result.stdout.str()
+    assert timestamp.get() in result.stdout.str()
+
+
+def test_timestamp_is_cleared(pytester, timestamp):
+    pytester.makepyfile(
+        """
+    import pytest
+    
+    def test_plugin():
+        assert True
+    """
+    )
+    pytester.runpytest()
+    timestamp.clear.assert_called_once()
+
+
+def test_timestamps_with_skip_decorator(pytester):
+    pytester.makepyfile(
+        """
+    import pytest
+    
+    @pytest.mark.skip
+    def test_plugin():
+        assert True
+    """
+    )
+    result = pytester.runpytest()
+    result.assert_outcomes(skipped=1)
