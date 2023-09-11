@@ -1,18 +1,17 @@
 [tool.poetry]
 name = "pytest-timestamps"
-version = "0.1.4"
+version = "0.2.0"
 description = "A simple plugin to view timestamps for each test"
 authors = ["TJ <tbruno25@gmail.com>"]
 packages = [{ include = "pytest_timestamps" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8, <4.0"
-pytest = ">=5.2"
+pytest = "^7.3"
 
 [tool.poetry.group.dev.dependencies]
-freezegun = "^1.0"
-ruff = "^0.0.260"
-black = "^23.3.0"
+ruff = "^0.0.287"
+black = "^23.9.1"
 mypy = "^1.5.1"
 
 [tool.poetry.plugins."pytest11"]

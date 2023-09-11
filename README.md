@@ -20,7 +20,7 @@ The timestamps used depend whether Pytest is running in `verbose` mode.\
 **non verbose:** module\
 ![](https://i.ibb.co/0qLXFjB/Screenshot-from-2022-01-10-22-00-26.png)
 
-Timestamps will also be added to the test report if [pytest-html](https://github.com/pytest-dev/pytest-html) is installed.
+***Note:*** *fixture setup/teardown times are omitted from the timestamp*
 
 
 
