@@ -2,20 +2,18 @@ from unittest.mock import patch
 
 import pytest
 
-from pytest_timestamps.plugin import TimestampReporter
+from pytest_timestamps.timestamp import timestamp as ts
 
 pytest_plugins = "pytester"
 
 
 @pytest.fixture
 def timestamp():
-    instance = TimestampReporter.timestamp
-
     # Prevent times from being cleared once printed to terminal
-    with patch.object(instance, "clear"):
-        yield instance
+    with patch.object(ts, "clear"):
+        yield ts
 
-    instance.clear()
+    ts.clear()
 
 
 def test_timestamps_normal(pytester, timestamp):
