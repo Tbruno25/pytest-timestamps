@@ -1,7 +1,8 @@
-import pytest
-from pytest_timestamps.plugin import TimestampReporter
-
 from unittest.mock import patch
+
+import pytest
+
+from pytest_timestamps.plugin import TimestampReporter
 
 pytest_plugins = "pytester"
 

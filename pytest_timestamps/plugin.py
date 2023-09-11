@@ -1,12 +1,10 @@
 from datetime import datetime
-
-from _pytest.config import Config
+from typing import Final, Optional
 
 import pytest
-from _pytest.terminal import TerminalReporter
+from _pytest.config import Config
 from _pytest.reports import TestReport
-
-from typing import Final, Optional
+from _pytest.terminal import TerminalReporter
 
 
 def format(timestamp: float) -> str:
