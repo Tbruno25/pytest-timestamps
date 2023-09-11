@@ -4,7 +4,7 @@ from typing import Optional
 from _pytest.reports import TestReport
 
 
-def format(timestamp: float) -> str:
+def _format(timestamp: float) -> str:
     return datetime.fromtimestamp(timestamp).strftime("%H:%M:%S")
 
 
@@ -21,7 +21,7 @@ class _Timestamp:
         return datetime.fromtimestamp(timestamp).strftime("%H:%M:%S")
 
     def get(self) -> str:
-        return f"[{format(self.start)} - {format(self.stop)}]"  # type: ignore
+        return f"[{_format(self.start)} - {_format(self.stop)}]"  # type: ignore
 
     def is_valid(self) -> bool:
         return bool(self.start and self.stop)
