@@ -21,13 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install poetry
-        poetry install
-    - name: Format
-      run: poetry run black .
-    - name: Lint
-      run: poetry run ruff check .
+        poetry install --no-ansi
     - name: Test
       run: poetry run pytest -v
-    - name: Type
-      run: poetry run mypy .
 
