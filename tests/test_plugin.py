@@ -20,7 +20,7 @@ def test_timestamps_normal(pytester, timestamp):
     pytester.makepyfile(
         """
     import pytest
-    
+
     def test_plugin():
         assert True
     """
@@ -35,7 +35,7 @@ def test_timestamps_verbose(pytester, timestamp):
     pytester.makepyfile(
         """
     import pytest
-    
+
     def test_plugin():
         assert True
     """
@@ -50,7 +50,7 @@ def test_timestamp_is_cleared(pytester, timestamp):
     pytester.makepyfile(
         """
     import pytest
-    
+
     def test_plugin():
         assert True
     """
@@ -63,7 +63,7 @@ def test_timestamps_with_skip_decorator(pytester):
     pytester.makepyfile(
         """
     import pytest
-    
+
     @pytest.mark.skip
     def test_plugin():
         assert True
@@ -80,12 +80,12 @@ def test_timestamp_is_accurate(pytester, timestamp):
         f"""
         from freezegun import freeze_time
         import pytest
-        
+
         @pytest.fixture
         def time():
             with freeze_time() as frozen_time:
                 yield frozen_time
-        
+
         def test_plugin(time):
             time.tick({time_delta})
             assert True
